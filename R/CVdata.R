@@ -14,7 +14,7 @@ events  <- super_fread( "../input/events.csv", key_var = "display_id" )
 nrow(clicks_train)
 nrow(clicks_test)
 
-cvmult = 2
+cvmult = 4
 cv_train_size = 1000000*cvmult
 cv_test_size = 380000*cvmult
 set.seed(121)
