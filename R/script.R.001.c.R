@@ -1,5 +1,4 @@
 library(data.table)
-source("futil.R")
 
 get_probs <- function (dt,var,target,w1,w2){
   p=dt[,sum(get(target))/.N]
@@ -17,29 +16,25 @@ super_fread <- function( file , key_var=NULL){
   return(dt)
 }
 
-events <- fread("../cv/events.csv",
+events <- fread("../input/events.csv",
                 select=c("display_id","platform"),
                 colClasses=c(rep("numeric",4),"character","numeric"))
 
 events[platform < "1",platform:="2"]
 setkeyv(events,"display_id")
-clicks_train1  <- super_fread( "../cv/clicks_train.csv", key_var = "display_id" )
-clicks_test1   <- super_fread( "../cv/clicks_test.csv" , key_var = "display_id" )
-vTrgt = clicks_test1[clicked==1,2,with=F]
-for (wprob1 in seq(15,15,0.5)) for (wprob2 in seq(17.5,17.5,0.5)){
-  print(c(wprob1,wprob2))
-clicks_train <- merge( clicks_train1, events, all.x = F )
+
+clicks_train  <- super_fread( "../input/clicks_train.csv", key_var = "display_id" )
+clicks_train <- merge( clicks_train, events, all.x = F )
 clicks_train[,ad_id_pl:= paste0(ad_id,'_',platform)]
 setkeyv(clicks_train,"ad_id_pl")
 
 click_prob = clicks_train[,.(sum(clicked)/.N)]
-#wprob = 16
-ad_id_pl_probs   <- get_probs(clicks_train,"ad_id_pl","clicked",wprob1,wprob2)
-#rm(clicks_train)
-#gc()
+ad_id_pl_probs   <- get_probs(clicks_train,"ad_id_pl","clicked",15,17.5)
+rm(clicks_train)
+gc()
 
-clicks_test <- merge( clicks_test1, events, all.x = T )
-
+clicks_test   <- super_fread( "../input/clicks_test.csv" , key_var = "display_id" )
+clicks_test <- merge( clicks_test, events, all.x = T )
 clicks_test[,ad_id_pl:= paste0(ad_id,'_',platform)]
 setkeyv(clicks_test,"ad_id_pl")
 
@@ -52,7 +47,3 @@ submission <- clicks_test[,.(ad_id=paste(rev(ad_id),collapse=" ")),by=display_id
 setkey(submission,"display_id")
 
 write.csv(submission,file = "submission.csv",row.names = F)
-
-estErr = errMeasure1(submission[,2,with=F],vTrgt)
-print(estErr)
-}

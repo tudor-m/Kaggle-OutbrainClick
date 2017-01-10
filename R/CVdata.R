@@ -16,7 +16,7 @@ documents_meta <- super_fread( "../input/documents_meta.csv", key_var = "documen
 nrow(clicks_train)
 nrow(clicks_test)
 
-cvmult = 1
+cvmult = 4
 cv_train_size = 1000000*cvmult
 cv_test_size = 380000*cvmult
 set.seed(121)
