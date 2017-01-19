@@ -17,7 +17,7 @@ super_fread <- function( file , key_var=NULL){
   return(dt)
 }
 
-events <- fread("../input/events.csv",
+events <- fread("../cv4/events.csv",
                 select=c("display_id","platform"),
                 colClasses=c(rep("numeric",4),"character","numeric"))
 
@@ -26,9 +26,9 @@ nn_ = "ad_id"
 
 events[platform < "1",platform:="2"]
 setkeyv(events,"display_id")
-clicks_train1  <- super_fread( "../input/clicks_train.csv", key_var = "display_id" )
-clicks_test1   <- super_fread( "../input/clicks_test.csv" , key_var = "display_id" )
-#vTrgt = clicks_test1[clicked==1,2,with=F]
+clicks_train1  <- super_fread( "../cv4/clicks_train.csv", key_var = "display_id" )
+clicks_test1   <- super_fread( "../cv4/clicks_test.csv" , key_var = "display_id" )
+vTrgt = clicks_test1[clicked==1,2,with=F]
 for (wprob1 in seq(19,19,1)) for (wprob2 in seq(22,22,1)){ #19 22 is the best so far: 0.6239419
   print(c(wprob1,wprob2))
 clicks_train <- merge( clicks_train1, events, all.x = F )
@@ -56,6 +56,6 @@ setkey(submission,"display_id")
 
 write.csv(submission,file = "submission.csv",row.names = F)
 
-#estErr = errMeasure1(submission[,2,with=F],vTrgt)
-#print(estErr)
+estErr = errMeasure1(submission[,2,with=F],vTrgt)
+print(estErr)
 }
